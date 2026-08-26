@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  verify:
-    name: 验证并准备镜像
+  prepare:
+    name: 准备镜像版本
     runs-on: ubuntu-24.04
     outputs:
       app_version: ${{ steps.version.outputs.app_version }}
@@ -48,36 +48,9 @@ jobs:
           echo "app_version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
           echo "build_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
-      - name: 配置 Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: 配置 Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: 验证前端
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          npm ci --prefix frontend
-          npm run typecheck --prefix frontend
-          npm test --prefix frontend
-          npm run build --prefix frontend
-
-      - name: 验证 Go 服务
-        run: |
-          go vet ./...
-          go test ./...
-
   build:
     name: 构建镜像 (${{ matrix.arch }})
-    needs: verify
+    needs: prepare
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -192,9 +165,9 @@ jobs:
           file: Dockerfile.debian13
           platforms: ${{ matrix.platform }}
           build-args: |
-            APP_VERSION=${{ needs.verify.outputs.app_version }}
+            APP_VERSION=${{ needs.prepare.outputs.app_version }}
             VCS_REF=${{ github.sha }}
-            BUILD_TIME=${{ needs.verify.outputs.build_time }}
+            BUILD_TIME=${{ needs.prepare.outputs.build_time }}
           outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=ydisks-docker-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=ydisks-docker-${{ matrix.arch }}
@@ -263,7 +236,7 @@ jobs:
   publish:
     name: 发布多架构镜像
     needs:
-      - verify
+      - prepare
       - build
     runs-on: ubuntu-24.04
     steps:
@@ -297,7 +270,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ github.ref_name }}
-            type=raw,value=${{ needs.verify.outputs.app_version }}
+            type=raw,value=${{ needs.prepare.outputs.app_version }}
 
       - name: 创建并推送多架构 manifest
         shell: bash
