@@ -215,19 +215,9 @@ Windows 和 macOS 托盘启动时会自动启动后台服务，并显示检查�
 `/var/log/ydisks-xianyu-helper/server.log`，也可以使用
 `journalctl -u ydisks-xianyu-helper.service` 查看。
 
-桌面端安装包由 `.github/workflows/desktop-cd.yml` 在 `dev`、`main` 分支上持续构建；正式版本由统一的
-`.github/workflows/release.yml` 在 `v1.2.3` 格式的版本标签上协调构建：
-Linux 上传 amd64/arm64 tar 包，Windows 上传安装器，macOS 分别上传 arm64 和 amd64 安装包。
-分支构建只保留非正式 Actions artifacts；版本标签必须指向 `main` 中的提交，全部桌面端和 Docker
-构建验证成功后等待 `production-release` Environment 人工审批，审批通过才创建 GitHub Release、
-上传各平台安装包及 `SHA256SUMS`，并发布正式 Docker 标签。Windows
-和 macOS 安装包使用工作流中配置的固定签名证书签名；未配置对应 GitHub Secrets 时，签名
-步骤会失败，不会生成可分发的安装包。当前仓库未配置正式签名证书时，Windows/macOS 正式发布
-会停在签名步骤；Linux 安装包不依赖桌面端签名证书。
-
-GitHub Release 正文使用正式标签所指向提交的短 SHA 和完整 Git commit message（主题和正文），不会展开
-标签之间的全部历史提交。重跑同名标签时会同步更新正文并覆盖发布附件，不会使用 GitHub 自动生成的
-PR 分类说明。
+当前 GitHub Actions 只保留 `.github/workflows/release.yml`，正式版本标签会执行多架构 Docker
+镜像构建、Chromium 启动和 `/health` 验证，并发布 `latest`、版本号和带 `v` 的版本标签。
+桌面端安装包仍可按上文的平台说明使用本地打包脚本构建，但不会由 GitHub Actions 自动上传。
 
 Linux 安装包的 `install.sh` 必须在与安装包相同架构的 Linux 主机上以 root 执行。安装包已经
 包含对应架构的 Playwright driver、Chromium 和 headless shell；安装时只安装 Chromium 所需
@@ -450,14 +440,11 @@ ARM64 Linux 拉取 arm64，不需要手动设置 `platform`。
 
 | Git 引用 | 镜像标签 |
 | --- | --- |
-| `dev` 分支 | `dev` |
-| `main` 分支 | `main` |
 | `v1.2.3` 标签 | `v1.2.3`、`1.2.3`、`latest` |
 
-`dev` 是日常调试通道，`main` 是稳定候选通道，两者都不会更新 `latest`。推送 `v1.2.3`
-格式的 Git 标签会触发 Docker 正式发布流程，生成 `v1.2.3`、`1.2.3` 和 `latest` 三个标签。
-所有 Docker 发布都必须先通过 Go/前端测试，再对每个原生架构镜像实际启动 Chromium 和服务并通过
-`/health` 检查。
+推送 `v1.2.3` 格式的 Git 标签会触发 Docker 正式发布流程，生成 `v1.2.3`、`1.2.3` 和
+`latest` 三个标签。所有 Docker 发布都必须先通过 Go/前端测试，再对每个原生架构镜像实际启动
+Chromium 和服务并通过 `/health` 检查。
 
 生产环境建议使用明确的版本标签，避免 `latest` 上游更新导致未经验证的自动升级。
 

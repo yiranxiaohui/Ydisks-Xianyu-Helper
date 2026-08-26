@@ -47,11 +47,10 @@ Intel（amd64）版本，并注册 `com.ydisks.xianyu-helper.server` 与
 - 自动化必须先用测试商品、测试卡密和小额订单验证。库存耗尽、账号掉线或风控时，不应假设发货已完成。
 - 本项目为非官方工具。请确保使用方式符合平台规则、当地法律及账号授权范围。
 
-## GitHub Wiki 同步
+## GitHub Wiki 文档
 
 这些 Markdown 文件位于仓库 `docs/wiki/`，是 Wiki 的唯一维护来源；文件名即页面名，`_Sidebar.md` 是
-Wiki 导航。`main` 分支发生变更后，`.github/workflows/sync-wiki.yml` 会自动把这些文件镜像到 GitHub
-Wiki；也可以通过 GitHub Actions 手动运行该工作流。仓库内保留副本，便于在 Pull Request 中审阅和版本化维护，
+Wiki 导航。修改后需要手动将这些文件同步到 GitHub Wiki。仓库内保留副本，便于版本化维护和审阅，
 不建议直接在 GitHub Wiki 仓库中维护内容。
 
 项目 Pages 站点使用 `main` 分支的 `/docs` 目录发布，域名由 `docs/CNAME` 中的配置决定；修改首页或图片资源

@@ -4,9 +4,9 @@
 三方言回归。`make test-multidb` 只有在 `TEST_MYSQL_URL` 与 `TEST_POSTGRES_URL`
 同时存在时才会启动严格门禁；任一 URL 缺失都会在命令入口直接失败。
 
-## CI 实测
+## 自动化实测
 
-`.github/workflows/ci.yml` 的 `multidb` job 使用 GitHub Actions service containers 启动：
+需要自动化回归时，可在 CI 或本地使用 service containers 启动：
 
 - MySQL 8.4，映射到 runner 的 `127.0.0.1:3306`；
 - PostgreSQL 17，映射到 runner 的 `127.0.0.1:5432`；
