@@ -366,8 +366,7 @@ Docker Compose 还支持：
 默认 `compose.yml` 直接拉取 GHCR 的 `:latest` 多架构镜像；如需固定版本，请把
 `XIANYU_IMAGE` 设置为完整镜像地址，例如
 `ghcr.io/christ9038/ydisks-xianyu-helper:v1.2.3`、
-`ghcr.io/christ9038/ydisks-xianyu-helper:main` 或
-`ghcr.io/christ9038/ydisks-xianyu-helper:sha-<完整提交号>`。
+`ghcr.io/christ9038/ydisks-xianyu-helper:main`。
 
 `XIANYU_DATA_KEY` 用于加密 Cookie、账号密码、设备令牌、访问令牌、AI/SMTP 密钥和
 通知凭证。启用后，服务会自动升级历史明文数据。密钥丢失或更换后，已有加密数据将
@@ -451,16 +450,16 @@ ARM64 Linux 拉取 arm64，不需要手动设置 `platform`。
 
 | Git 引用 | 镜像标签 |
 | --- | --- |
-| `dev` 分支 | `dev`、`sha-<完整提交号>` |
-| `main` 分支 | `main`、`sha-<完整提交号>` |
-| `v1.2.3` 标签 | `v1.2.3`、`1.2.3`、`1.2`、`latest`、`sha-<完整提交号>` |
+| `dev` 分支 | `dev` |
+| `main` 分支 | `main` |
+| `v1.2.3` 标签 | `v1.2.3`、`1.2.3`、`latest` |
 
-`dev` 是日常调试通道，`main` 是稳定候选通道，两者都不会更新 `latest` 或创建 Release。推送
-`v1.2.3` 格式的 Git 标签会触发统一正式发布流程。所有 Docker 发布都必须先通过 Go/前端测试，
-再对每个原生架构镜像实际启动 Chromium 和服务并通过 `/health` 检查；正式版还必须等全部桌面
-安装包构建成功并通过人工审批，之后才生成版本 manifest、更新 `latest` 并创建 GitHub Release。
+`dev` 是日常调试通道，`main` 是稳定候选通道，两者都不会更新 `latest`。推送 `v1.2.3`
+格式的 Git 标签会触发 Docker 正式发布流程，生成 `v1.2.3`、`1.2.3` 和 `latest` 三个标签。
+所有 Docker 发布都必须先通过 Go/前端测试，再对每个原生架构镜像实际启动 Chromium 和服务并通过
+`/health` 检查。
 
-生产环境建议使用明确的版本标签或 SHA 标签，避免上游更新导致未经验证的自动升级。
+生产环境建议使用明确的版本标签，避免 `latest` 上游更新导致未经验证的自动升级。
 
 ### Compose 服务
 

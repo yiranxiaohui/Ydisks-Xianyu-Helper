@@ -261,7 +261,6 @@ jobs:
 
   publish:
     name: 合并多架构镜像
-    if: inputs.app_version == ''
     needs: build
     runs-on: ubuntu-24.04
     steps:
@@ -293,9 +292,11 @@ jobs:
         with:
           images: ${{ steps.image.outputs.name }}
           tags: |
-            type=sha,format=long
-            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/dev' }}
+            type=raw,value=latest,enable=${{ inputs.app_version != '' }}
+            type=raw,value=v${{ inputs.app_version }},enable=${{ inputs.app_version != '' }}
+            type=raw,value=${{ inputs.app_version }},enable=${{ inputs.app_version != '' }}
+            type=raw,value=main,enable=${{ inputs.app_version == '' && github.ref == 'refs/heads/main' }}
+            type=raw,value=dev,enable=${{ inputs.app_version == '' && github.ref == 'refs/heads/dev' }}
 
       - name: 创建并推送多架构 manifest
         shell: bash
